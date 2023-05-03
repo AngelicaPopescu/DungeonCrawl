@@ -4,36 +4,36 @@ import com.codecool.dungeoncrawl.dao.GameDatabaseManager;
 import com.codecool.dungeoncrawl.logic.Cell;
 import com.codecool.dungeoncrawl.logic.GameMap;
 import com.codecool.dungeoncrawl.logic.MapLoader;
-import com.codecool.dungeoncrawl.logic.actors.*;
-import com.codecool.dungeoncrawl.logic.items.Item;
+import com.codecool.dungeoncrawl.logic.actors.Actor;
+import com.codecool.dungeoncrawl.logic.actors.Casper;
+import com.codecool.dungeoncrawl.logic.actors.Player;
 import com.codecool.dungeoncrawl.logic.items.Key;
-import com.codecool.dungeoncrawl.model.GameStateModel;
-import com.codecool.dungeoncrawl.model.PlayerModel;
-import com.codecool.dungeoncrawl.util.Music;
 import com.codecool.dungeoncrawl.logic.items.Sword;
-import com.google.gson.Gson;
+import com.codecool.dungeoncrawl.util.Music;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.scene.input.*;
-import java.sql.Date;
-import java.time.LocalDate;
+
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import static com.codecool.dungeoncrawl.logic.MapLoader.populateBlankMap;
 
 public class Main extends Application {
     Music gameplayMusic;
@@ -54,15 +54,9 @@ public class Main extends Application {
     Label damageLabel = new Label();
     Label playerNameLabel = new Label();
     GameDatabaseManager dbManager;
-
     String resultPlayerNameLabel;
-
-
     int deltaX =0;
     int deltaY =0;
-
-
-
 
     public static void main(String[] args) {
         launch(args);
@@ -82,7 +76,6 @@ public class Main extends Application {
 
     public String getUserName() {
         TextInputDialog nameInputDialogBox = new TextInputDialog("Name goes here");
-//        nameInputDialogBox.contentTextProperty().set("-fx-font-family: 'serif'");
         nameInputDialogBox.setTitle("NameBox");
         nameInputDialogBox.setHeaderText("Please enter your name below");
         Optional<String> result = nameInputDialogBox.showAndWait();
@@ -104,20 +97,7 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-////        TESTS for serializer
-//        PlayerModel playerModelTest = setPlayerModel(map.getPlayer());
-//        Date currentSQLTime = getCurrentSQLTime();
-//        String stringMap = getStringObjGson(map.getCell(7,1).getActor().getHealth());
-        String stringMap = "map2.txt";
-//        GameStateModel gameStateTest = setGameState(stringMap, currentSQLTime, playerModelTest);
-//        System.out.println("TEST: "+stringMap);
-//        String testPlayer = getStringObjGson(gameStateTest);
-//        System.out.println("Back: "+testPlayer);
-//        GameStateModel resultBack = getObjFromJSON_Gson(testPlayer);
-//        System.out.println("result: "+resultBack.toString());
-//        System.out.println("original: "+gameStateTest.toString());
-
+    public void start(Stage primaryStage) {
         GridPane ui = new GridPane();
         ui.setPrefWidth(300);
         ui.setPadding(new Insets(10));
@@ -171,10 +151,6 @@ public class Main extends Application {
         restartButton.setText("Restart game");
         restartButton.setFocusTraversable(false);
         ui.add(restartButton, 0, 21);
-//        restartButton.setOnAction(actionEvent -> {
-//            map = MapLoader.loadMap();
-//            refresh(deltaX, deltaY);
-//        });
 
         Button loadButton = new Button();
         loadButton.setText("Load Saved Game");
@@ -193,17 +169,8 @@ public class Main extends Application {
             loadGameDialog.setHeaderText("");
             loadGameDialog.setContentText("Choose a save to load");
             Optional<String> result = loadGameDialog.showAndWait();
-           // if(result.isPresent()){
-                //load saved game
-           // }
         });
 
-
-//        Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA);
-//        StyleManager.getInstance().addUserAgentStylesheet(getClass()
-//                .getResource("src/main/resources/style.css").toString());
-//        StyleManager.getInstance().addUserAgentStylesheet(getResource("src/main/resources/style.css").toString());
-//        StyleManager.getInstance().addUserAgentStylesheet("-fx-font-family: 'serif'");
         playerNameLabel.setText(userName);
         System.out.println(userName);
         getPlayerNameLabel();
@@ -211,7 +178,7 @@ public class Main extends Application {
         scene.getRoot().setStyle("-fx-font-family: 'serif'");
         primaryStage.setScene(scene);
 
-        setInitialDxDy(); //added for loading game with player in some random position on the map
+        setInitialDxDy();
         refresh(deltaX, deltaY);
         scene.setOnKeyPressed(this::onKeyPressed);
         primaryStage.setTitle("Dungeon Crawl");
@@ -221,11 +188,7 @@ public class Main extends Application {
 
     public GameMap populateGameMap(GameMap map1) {
         DataLoader dataLoader = new DataLoader(dbManager, map1);
-        List<Actor> actors = dataLoader.getAllActors(userName);
-        List<Item> items = dataLoader.getAllItems(userName);
-//        GameMap savedMap = populateBlankMap(map1, actors, items);
         return  map1;
-//        return savedMap;
     }
 
     public String getPlayerNameLabel() {
@@ -233,7 +196,6 @@ public class Main extends Application {
         return resultPlayerNameLabel;
     }
 
-    //added for loading game with player in some random position on the map
     private void setInitialDxDy(){
         if (map.getPlayer().getX()<(map.getDisplayWidth()-1)/2) {
             deltaX=0;
@@ -250,7 +212,6 @@ public class Main extends Application {
             deltaY=map.getPlayer().getY()-(map.getDisplayHeight()-1)/2;
         }
     }
-
 
     private void onKeyPressed(KeyEvent keyEvent) {
         if (keyEvent.isControlDown()&& keyEvent.getCode()==KeyCode.S){
@@ -433,22 +394,4 @@ public class Main extends Application {
             throw new RuntimeException(e);
         }
     }
-
-    //tests on row 88 !!!
-    public PlayerModel setPlayerModel (Player player) {
-        return new PlayerModel(player);
-    }
-
-    public Date getCurrentSQLTime () {
-        return Date.valueOf(LocalDate.now());
-    }
-
-    public <K> String getStringObjGson (K obj) {
-        return new Gson().toJson(obj);
-    }
-
-    public GameStateModel getObjFromJSON_Gson (String mapString) {
-        return new Gson().fromJson(mapString, GameStateModel.class);
-    }
-
 }

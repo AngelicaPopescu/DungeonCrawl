@@ -3,7 +3,6 @@ package com.codecool.dungeoncrawl.model;
 import java.lang.reflect.Field;
 
 public class BaseModel {
-    // null means not saved
     protected Integer id;
 
     public int getId() {

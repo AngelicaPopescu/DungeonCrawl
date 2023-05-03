@@ -55,7 +55,7 @@ public class ItemDaoJdbc implements ItemDao{
             st.setInt(1, gameStateId);
             ResultSet rs = st.executeQuery();
             List<ItemModel> result = new ArrayList<>();
-            while (rs.next()) { // while result set pointer is positioned before or on last row read authors
+            while (rs.next()) {
                 ItemModel itemModel = new ItemModel(rs.getString(2), rs.getInt(3),
                         rs.getInt(4));
                 result.add(itemModel);

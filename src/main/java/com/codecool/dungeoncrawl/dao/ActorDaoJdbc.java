@@ -57,7 +57,7 @@ public class ActorDaoJdbc implements ActorDao {
             st.setInt(1, gameStateId);
             ResultSet rs = st.executeQuery();
             List<ActorModel> result = new ArrayList<>();
-            while (rs.next()) { // while result set pointer is positioned before or on last row read authors
+            while (rs.next()) {
                 ActorModel actor = new ActorModel(rs.getString(2), rs.getInt(3),
                 rs.getInt(4), rs.getInt(5), rs.getInt(6));
                 result.add(actor);

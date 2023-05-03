@@ -1,10 +1,13 @@
 package com.codecool.dungeoncrawl.dao;
 
 import com.codecool.dungeoncrawl.model.GameStateModel;
-import com.codecool.dungeoncrawl.model.ItemModel;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +17,6 @@ public class GameStateDaoJdbc implements GameStateDao {
     public GameStateDaoJdbc(DataSource dataSource) {
         this.dataSource = dataSource;
     }
-
 
     @Override
     public void add(GameStateModel state) {
@@ -43,7 +45,6 @@ public class GameStateDaoJdbc implements GameStateDao {
 
     public Object getId(String name) {
         try (Connection conn = dataSource.getConnection()) {
-//            String sql = "SELECT id FROM game_state WHERE save_name = " + "'"+name+"'";
             String sql = "SELECT id FROM game_state WHERE save_name = ?";
 
             PreparedStatement st = conn.prepareStatement(sql);
@@ -65,7 +66,7 @@ public class GameStateDaoJdbc implements GameStateDao {
             PreparedStatement st = conn.prepareStatement(sql);
             ResultSet rs = st.executeQuery();
             List<String> result = new ArrayList<>();
-            while (rs.next()) { // while result set pointer is positioned before or on last row read authors
+            while (rs.next()) {
                 String name = rs.getString(1);
                 result.add(name);
             }
